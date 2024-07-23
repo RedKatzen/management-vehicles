@@ -1,17 +1,45 @@
 import React, { useState } from 'react';
 import Swal from 'sweetalert2';
 
-const Add = ({ employees, setEmployees, setIsAdding }) => {
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [salary, setSalary] = useState('');
-  const [date, setDate] = useState('');
+import { collection, addDoc } from "firebase/firestore"; 
+import { db } from '../../config/firebase';
+
+const Add = ({ infos, setInfos, setIsAdding, getInfos }) => {
+  const [data, setData] = useState('');
+  const [horario, setHorario] = useState('');
+  const [andado, setAndado] = useState(0);
+  const [kmTotal, setKmTotal] = useState(0);
+  const [ltsAbast, setLtsAbast] = useState(0);
+  const [media, setMedia] = useState('');
+
+  const calcMedia = (andado, ltsAbast) => {
+    const andadoNumber = parseFloat(andado);
+    const ltsAbastNumber = parseFloat(ltsAbast);
+
+    if (!isNaN(andadoNumber) && !isNaN(ltsAbastNumber) && ltsAbastNumber !== 0) {
+      const calculatedMedia = (andadoNumber / ltsAbastNumber).toFixed(2);
+      setMedia(calculatedMedia.toString()); // Converte para string
+    } else {
+      setMedia('');
+    }
+  }
+
+  const handleAndadoChange = (e) => {
+    const value = e.target.value;
+    setAndado(value);
+    calcMedia(value, ltsAbast); 
+  };
+
+  const handleLtsAbastChange = (e) => {
+    const value = e.target.value;
+    setLtsAbast(value);
+    calcMedia(andado, value); 
+  };
 
   const handleAdd = e => {
     e.preventDefault();
 
-    if (!firstName || !lastName || !email || !salary || !date) {
+    if (!data || !horario || !andado || !kmTotal || !ltsAbast || !media) {
       return Swal.fire({
         icon: 'error',
         title: 'Error!',
@@ -20,25 +48,33 @@ const Add = ({ employees, setEmployees, setIsAdding }) => {
       });
     }
 
-    const newEmployee = {
-      firstName,
-      lastName,
-      email,
-      salary,
-      date,
+    const newInfo = {
+      data,
+      horario,
+      andado,
+      kmTotal,
+      ltsAbast,
+      media
     };
 
-    employees.push(newEmployee);
+    infos.push(newInfo);
 
-    // TODO: Add doc to DB
+    // Add a new doc with a generated id.
+    try {
+      addDoc(collection(db, "motorbike-info"), {
+        ...newInfo
+      });
+    } catch (error) {
+      console.log("Error adding document: ", error);
+    } 
 
-    setEmployees(employees);
+    setInfos(infos);
     setIsAdding(false);
+    getInfos(); 
 
     Swal.fire({
       icon: 'success',
       title: 'Added!',
-      text: `${firstName} ${lastName}'s data has been Added.`,
       showConfirmButton: false,
       timer: 1500,
     });
@@ -47,46 +83,54 @@ const Add = ({ employees, setEmployees, setIsAdding }) => {
   return (
     <div className="small-container">
       <form onSubmit={handleAdd}>
-        <h1>Add Employee</h1>
-        <label htmlFor="firstName">First Name</label>
+        <h1>Add Info</h1>
+        <label htmlFor="data">Data</label>
         <input
-          id="firstName"
-          type="text"
-          name="firstName"
-          value={firstName}
-          onChange={e => setFirstName(e.target.value)}
-        />
-        <label htmlFor="lastName">Last Name</label>
-        <input
-          id="lastName"
-          type="text"
-          name="lastName"
-          value={lastName}
-          onChange={e => setLastName(e.target.value)}
-        />
-        <label htmlFor="email">Email</label>
-        <input
-          id="email"
-          type="email"
-          name="email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-        />
-        <label htmlFor="salary">Salary ($)</label>
-        <input
-          id="salary"
-          type="number"
-          name="salary"
-          value={salary}
-          onChange={e => setSalary(e.target.value)}
-        />
-        <label htmlFor="date">Date</label>
-        <input
-          id="date"
+          id="data"
           type="date"
-          name="date"
-          value={date}
-          onChange={e => setDate(e.target.value)}
+          name="data"
+          value={data}
+          onChange={e => setData(e.target.value)}
+        />
+        <label htmlFor="horario">Horário</label>
+        <input
+          id="horario"
+          type="text"
+          name="horario"
+          value={horario}
+          onChange={e => setHorario(e.target.value)}
+        />
+        <label htmlFor="andado">Andado</label>
+        <input
+          id="andado"
+          type="number"
+          name="andado"
+          value={andado}
+          onChange={handleAndadoChange}
+        />
+        <label htmlFor="kmTotal">Km. Total</label>
+        <input
+          id="kmTotal"
+          type="number"
+          name="kmTotal"
+          value={kmTotal}
+          onChange={e => setKmTotal(e.target.value)}
+        />
+        <label htmlFor="ltsAbast">Litros abastecidos</label>
+        <input
+          id="ltsAbast"
+          type="number"
+          name="ltsAbast"
+          value={ltsAbast}
+          onChange={handleLtsAbastChange}
+        />
+        <label htmlFor="media">Média</label>
+        <input 
+          id="media"
+          type="text"
+          name="media"
+          value={media}
+          readOnly
         />
         <div style={{ marginTop: '30px' }}>
           <input type="submit" value="Add" />

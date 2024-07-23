@@ -1,54 +1,67 @@
-import React, { useState, useEffect } from 'react';
-import Swal from 'sweetalert2';
+import React, { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 
-import Header from './Header';
-import Table from './Table';
-import Add from './Add';
-import Edit from './Edit';
+import Header from "./Header";
+import Table from "./Table";
+import Add from "./Add";
+import Edit from "./Edit";
 
-import { employeesData } from '../../data';
+import { collection, getDocs, doc, deleteDoc } from "firebase/firestore";
+import { db } from "../../config/firebase";
 
 const Dashboard = ({ setIsAuthenticated }) => {
-  const [employees, setEmployees] = useState(employeesData);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [infos, setInfos] = useState(null);
+  const [selectedInfo, setSelectedInfo] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
 
+  const getInfos = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "motorbike-info"));
+      const infos = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setInfos(infos);
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
+  };
+
   useEffect(() => {
-    // TODO: create getEmployees function and call it here
+    getInfos();
   }, []);
 
-  const handleEdit = id => {
-    const [employee] = employees.filter(employee => employee.id === id);
+  const handleEdit = (id) => {
+    const [info] = infos.filter((info) => info.id === id);
 
-    setSelectedEmployee(employee);
+    setSelectedInfo(info);
     setIsEditing(true);
   };
 
-  const handleDelete = id => {
+  const handleDelete = (id) => {
     Swal.fire({
-      icon: 'warning',
-      title: 'Are you sure?',
-      text: "You won't be able to revert this!",
+      icon: "warning",
+      title: "Tem certeza?",
+      text: "Você não poderá reverter a ação!",
       showCancelButton: true,
-      confirmButtonText: 'Yes, delete it!',
-      cancelButtonText: 'No, cancel!',
-    }).then(result => {
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "No, cancel!",
+    }).then((result) => {
       if (result.value) {
-        const [employee] = employees.filter(employee => employee.id === id);
-
-        // TODO delete document
+        deleteDoc(doc(db, "motorbike-info", id));
 
         Swal.fire({
-          icon: 'success',
-          title: 'Deleted!',
-          text: `${employee.firstName} ${employee.lastName}'s data has been deleted.`,
+          icon: "success",
+          title: "Deletado!",
           showConfirmButton: false,
           timer: 1500,
         });
 
-        const employeesCopy = employees.filter(employee => employee.id !== id);
-        setEmployees(employeesCopy);
+        const InfosCopy = infos.filter(
+          (info) => info.id !== id
+        );
+        setInfos(InfosCopy);
       }
     });
   };
@@ -62,7 +75,7 @@ const Dashboard = ({ setIsAuthenticated }) => {
             setIsAuthenticated={setIsAuthenticated}
           />
           <Table
-            employees={employees}
+            infos={infos}
             handleEdit={handleEdit}
             handleDelete={handleDelete}
           />
@@ -70,16 +83,18 @@ const Dashboard = ({ setIsAuthenticated }) => {
       )}
       {isAdding && (
         <Add
-          employees={employees}
-          setEmployees={setEmployees}
+          infos={infos}
+          setInfos={setInfos}
           setIsAdding={setIsAdding}
+          getInfos={getInfos}
+
         />
       )}
       {isEditing && (
         <Edit
-          employees={employees}
-          selectedEmployee={selectedEmployee}
-          setEmployees={setEmployees}
+          infos={infos}
+          selectedInfo={selectedInfo}
+          setInfos={setInfos}
           setIsEditing={setIsEditing}
         />
       )}
