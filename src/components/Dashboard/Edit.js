@@ -4,13 +4,14 @@ import Swal from 'sweetalert2';
 import { doc, setDoc } from "firebase/firestore";
 import { db } from '../../config/firebase';
 
-const Edit = ({ infos, selectedInfo, setInfos, setIsEditing }) => {
+const Edit = ({ infos, selectedInfo, getInfos, setInfos, setIsEditing }) => {
   const id = selectedInfo.id;
 
   const [data, setData] = useState(selectedInfo.data);
   const [horario, setHorario] = useState(selectedInfo.horario);
   const [andado, setAndado] = useState(selectedInfo.andado);
   const [kmTotal, setKmTotal] = useState(selectedInfo.kmTotal);
+  const [valor, setValor] = useState(selectedInfo.valor);
   const [ltsAbast, setLtsAbast] = useState(selectedInfo.ltsAbast);
   const [media, setMedia] = useState(selectedInfo.media);
 
@@ -41,7 +42,7 @@ const Edit = ({ infos, selectedInfo, setInfos, setIsEditing }) => {
   const handleUpdate = async e => {
     e.preventDefault();
 
-    if (!data || !horario || !andado || !kmTotal || !ltsAbast || !media) {
+    if (!data || !horario || !andado || !kmTotal || !valor || !ltsAbast || !media) {
       return Swal.fire({
         icon: 'error',
         title: 'Error!',
@@ -56,6 +57,7 @@ const Edit = ({ infos, selectedInfo, setInfos, setIsEditing }) => {
       horario,
       andado,
       kmTotal,
+      valor,
       ltsAbast,
       media
     };
@@ -66,6 +68,7 @@ const Edit = ({ infos, selectedInfo, setInfos, setIsEditing }) => {
 
     setInfos(infos);
     setIsEditing(false);
+    getInfos();
 
     Swal.fire({
       icon: 'success',
@@ -118,6 +121,15 @@ const Edit = ({ infos, selectedInfo, setInfos, setIsEditing }) => {
           name="ltsAbast"
           value={ltsAbast}
           onChange={handleLtsAbastChange}
+        />
+        <label htmlFor="valor">Valor</label>
+        <input 
+          id="valor"
+          type="number"
+          name="valor"
+          step="any"
+          value={valor}
+          onChange={e => setValor(e.target.value)}
         />
         <label htmlFor="media">Média</label>
         <input 

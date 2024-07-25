@@ -39,6 +39,7 @@ const Dashboard = ({ setIsAuthenticated }) => {
     setIsEditing(true);
   };
 
+
   const handleDelete = (id) => {
     Swal.fire({
       icon: "warning",
@@ -93,6 +94,7 @@ const Dashboard = ({ setIsAuthenticated }) => {
       {isEditing && (
         <Edit
           infos={infos}
+          getInfos={getInfos}
           selectedInfo={selectedInfo}
           setInfos={setInfos}
           setIsEditing={setIsEditing}

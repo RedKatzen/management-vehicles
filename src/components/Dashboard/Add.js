@@ -9,6 +9,7 @@ const Add = ({ infos, setInfos, setIsAdding, getInfos }) => {
   const [horario, setHorario] = useState('');
   const [andado, setAndado] = useState(0);
   const [kmTotal, setKmTotal] = useState(0);
+  const [valor, setValor] = useState(0);
   const [ltsAbast, setLtsAbast] = useState(0);
   const [media, setMedia] = useState('');
 
@@ -39,7 +40,7 @@ const Add = ({ infos, setInfos, setIsAdding, getInfos }) => {
   const handleAdd = e => {
     e.preventDefault();
 
-    if (!data || !horario || !andado || !kmTotal || !ltsAbast || !media) {
+    if (!data || !horario || !andado || !kmTotal || !valor || !ltsAbast || !media) {
       return Swal.fire({
         icon: 'error',
         title: 'Error!',
@@ -53,6 +54,7 @@ const Add = ({ infos, setInfos, setIsAdding, getInfos }) => {
       horario,
       andado,
       kmTotal,
+      valor,
       ltsAbast,
       media
     };
@@ -123,6 +125,14 @@ const Add = ({ infos, setInfos, setIsAdding, getInfos }) => {
           name="ltsAbast"
           value={ltsAbast}
           onChange={handleLtsAbastChange}
+        />
+        <label htmlFor="valor">Valor</label>
+        <input
+          id="valor"
+          type="number"
+          name="valor"
+          value={valor}
+          onChange={e => setValor(e.target.value)}
         />
         <label htmlFor="media">Média</label>
         <input 

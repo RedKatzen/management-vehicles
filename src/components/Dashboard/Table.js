@@ -1,9 +1,27 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
 
 const Table = ({ infos, handleEdit, handleDelete }) => {
+  const [rendimentoMedio, setRendimentoMedio] = useState(0);
+
+  const calcularRendimentoMedio = (infos) => {
+    if (!infos || infos.length === 0) return 0;
+    const somaMedias = infos.reduce(
+      (total, info) => total + Number(info.media),
+      0
+    );
+    const rendimento = somaMedias / infos.length;
+    return rendimento.toFixed(2);
+  };
+
+  useEffect(() => {
+    setRendimentoMedio(calcularRendimentoMedio(infos));
+  }, [infos]);
 
   return (
     <div className="contain-table">
+      <div style={{ display:"flex", justifyContent:"left", alignItems:"center"}}>
+        <p style={{ fontSize:"18px", fontWeight:"bold" }}>Rendimento médio: {rendimentoMedio}</p>
+      </div>
       <table className="striped-table">
         <thead>
           <tr>
@@ -11,6 +29,7 @@ const Table = ({ infos, handleEdit, handleDelete }) => {
             <th>Hora</th>
             <th>Andado</th>
             <th>Km. Total</th>
+            <th>Valor</th>
             <th>Litros abastecidos</th>
             <th>Média</th>
             <th colSpan={2} className="text-center">
@@ -26,6 +45,7 @@ const Table = ({ infos, handleEdit, handleDelete }) => {
                 <td>{info.horario}</td>
                 <td>{info.andado}</td>
                 <td>{info.kmTotal}</td>
+                <td>{info.valor}</td>
                 <td>{info.ltsAbast}</td>
                 <td>{info.media}</td>
                 <td className="text-right">
@@ -48,7 +68,7 @@ const Table = ({ infos, handleEdit, handleDelete }) => {
             ))
           ) : (
             <tr>
-              <td colSpan={7}>No Info</td>
+              <td colSpan={7}>No info found</td>
             </tr>
           )}
         </tbody>
