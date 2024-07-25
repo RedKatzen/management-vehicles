@@ -23,7 +23,6 @@ const Login = ({ setIsAuthenticated }) => {
         showConfirmButton: true,
       });
     }
-
     if (document.activeElement.name === "Login") {
       try {
         await signInWithEmailAndPassword(auth, email, password);
